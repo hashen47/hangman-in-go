@@ -16,21 +16,55 @@ const wordListFileName string = "wordlist.txt"
 
 
 func main() {
-    word, err := selectRandomWord()
+    isPlay := true
 
-    if err != nil {
-        log.Fatalln(err)
+    for {
+        if !isPlay {
+            break
+        }
+
+        remainGuesses := 6
+        wordHint := ""
+        word, err := selectRandomWord()
+
+        if err != nil {
+            log.Fatalln(err)
+        }
+
+        for range []rune(word) {
+            wordHint += "_"
+        }
+
+        welcomeMsg()
+
+        for {
+            gameStatus(wordHint, remainGuesses)
+
+            guess := ""
+
+            for {
+                guess, err = getUserInput()
+                if err != nil {
+                    fmt.Println(err)
+                } else {
+                    break
+                }
+            }
+
+            if contains, err := isUserGuessCorrect(&word, &wordHint, &guess); err != nil {
+                fmt.Println(err)
+            } else {
+                if !contains {
+                    remainGuesses -= 1
+                }
+            }
+
+            if isGameOver(&word, &wordHint, remainGuesses) {
+                playAgainOrExit(&isPlay)
+                break
+            }
+        }
     }
-
-    fmt.Println(word)
-
-    guess, err := getUserInput()
-
-    if err != nil {
-        fmt.Printf("err: %v\n", err)
-    }
-
-    fmt.Println(guess)
 }
 
 
@@ -69,11 +103,40 @@ func welcomeMsg() {
 }
 
 
-func gameOverMsg() {
+func gameOverMsg(remain int, word *string) {
     fmt.Print(`
             ############### 
             |  Game Over  |
             ############### 
+       ____________
+       |     | 
+       |     | 
+       |   \_O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + *word + `
+       |    / \
+       |_____________
+       |             |
+       | You Lost ): |
+       |_____________|
+    `)
+}
+
+
+func gameWinMsg(remain int, word *string) {
+    fmt.Print(`
+            ############### 
+            |    Winner   |
+            ############### 
+       ____________
+       |      
+       |      
+       |   \_O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + *word + `
+       |    / \
+       |______________
+       |              |
+       | Thank You (: |
+       |______________|
     `)
 }
 
@@ -195,4 +258,51 @@ func getUserInput() (string, error) {
     }
 
     return input, nil
+}
+
+
+func isUserGuessCorrect(word *string, wordHint *string, guess *string) (bool, error) {
+    if strings.Contains(*wordHint, *guess) {
+        return true, errors.New("You Already Guess that value, guess another one")
+    }
+
+    newHintWordSlice := []rune(*wordHint) 
+    contains := false
+    for i, w := range []rune(*word) {
+        if string(w) == *guess {
+            contains = true
+            newHintWordSlice[i] = w
+        }
+    }
+
+    *wordHint = string(newHintWordSlice)
+
+    return contains, nil
+}
+
+
+func isGameOver(word *string, wordHint *string, remainGuesses int) bool {
+    if *word == *wordHint {
+        gameWinMsg(remainGuesses, word)
+        return true;
+    } else if (remainGuesses == 0) {
+        gameOverMsg(remainGuesses, word)
+        return true;
+    }
+    return false;
+}
+
+
+func playAgainOrExit(isPlay *bool) {
+    scan := bufio.NewScanner(os.Stdin)
+    fmt.Print("\nDo you want to play again? ")
+    scan.Scan()
+
+    input := []rune(scan.Text())
+
+    if len(input) == 0 {
+        *isPlay = false
+    } else if strings.ToUpper(string(input[0])) != "Y" {
+        *isPlay = false
+    }
 }
