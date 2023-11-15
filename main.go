@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -18,6 +19,8 @@ func main() {
         log.Fatalln(err)
     }
     fmt.Println(word)
+    welcomeMsg()
+    gameStatus("H__l_", 6)
 }
 
 
@@ -46,3 +49,119 @@ func selectRandomWord() (string, error) {
     return string(word), nil
 }
 
+
+func welcomeMsg() {
+    fmt.Print(`
+            ############### 
+            |   Hangman   |
+            ############### 
+    `)
+}
+
+
+func gameOverMsg(word string) {
+    fmt.Print(`
+            ############### 
+            |  Game Over  |
+            ############### 
+    `)
+}
+
+
+func gameStatus(word string, remain int) {
+    switch remain {
+    case 0:
+        fmt.Print(`
+       ____________
+       |     | 
+       |     | 
+       |   \_O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + word + `
+       |    / \
+       |___________
+       |           |
+       |  Help Me! |
+       |___________|
+        `)
+    case 1:
+        fmt.Print(`
+       ____________
+       |      
+       |      
+       |   \_O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + word + `
+       |    / \
+       |___________
+       |           |
+       |  Help Me! |
+       |___________|
+        `)
+    case 2:
+        fmt.Print(`
+       ____________
+       |      
+       |      
+       |   \_O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + word + `
+       |    / 
+       |___________
+       |           |
+       |  Help Me! |
+       |___________|
+        `)
+    case 3:
+        fmt.Print(`
+       ____________
+       |      
+       |      
+       |   \_O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + word + `
+       |     
+       |___________
+       |           |
+       |  Help Me! |
+       |___________|
+        `)
+    case 4:
+        fmt.Print(`
+       ____________
+       |      
+       |      
+       |     O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + word + `
+       |     
+       |___________
+       |           |
+       |  Help Me! |
+       |___________|
+        `)
+    case 5:
+        fmt.Print(`
+       ____________
+       |      
+       |      
+       |     O_/    Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + word + `
+       |     
+       |___________
+       |           |
+       |  Help Me! |
+       |___________|
+        `)
+    case 6:
+        fmt.Print(`
+       ____________
+       |      
+       |      
+       |     O      Remain : `  + strconv.Itoa(remain) + `
+       |     |       Word  : `  + word + `
+       |     
+       |___________
+       |           |
+       |  Help Me! |
+       |___________|
+        `)
+    default:
+        log.Fatal("invalid guess remain value")
+    }
+}
