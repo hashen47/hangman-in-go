@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -15,12 +17,20 @@ const wordListFileName string = "wordlist.txt"
 
 func main() {
     word, err := selectRandomWord()
+
     if err != nil {
         log.Fatalln(err)
     }
+
     fmt.Println(word)
-    welcomeMsg()
-    gameStatus("H__l_", 6)
+
+    guess, err := getUserInput()
+
+    if err != nil {
+        fmt.Printf("err: %v\n", err)
+    }
+
+    fmt.Println(guess)
 }
 
 
@@ -59,7 +69,7 @@ func welcomeMsg() {
 }
 
 
-func gameOverMsg(word string) {
+func gameOverMsg() {
     fmt.Print(`
             ############### 
             |  Game Over  |
@@ -164,4 +174,25 @@ func gameStatus(word string, remain int) {
     default:
         log.Fatal("invalid guess remain value")
     }
+}
+
+
+func getUserInput() (string, error) {
+    scan := bufio.NewScanner(os.Stdin)
+    fmt.Print("\nGuess: ")
+    scan.Scan()
+
+    charArr := []rune(scan.Text())
+
+    if len(charArr) == 0 {
+        return "", errors.New("User input required")
+    }
+
+    input := strings.TrimSpace(string(charArr[0]))
+
+    if input == "" {
+        return "", errors.New("User input is empty") 
+    }
+
+    return input, nil
 }
